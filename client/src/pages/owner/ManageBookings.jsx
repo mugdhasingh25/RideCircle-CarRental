@@ -33,6 +33,10 @@ const ManageBookings = () => {
     }
   }
 
+  const handleStartRide = (booking) => {
+  alert("Inspection will open here")
+  } 
+
   useEffect(()=>{
     fetchOwnerBookings()
   },[])
@@ -56,6 +60,7 @@ const ManageBookings = () => {
           </thead>
           <tbody>
             {bookings.map((booking, index)=>(
+              
               <tr key={index} className='border-t border-borderColor text-gray-500'>
 
                 <td className='p-3 flex items-center gap-3'>
@@ -74,16 +79,63 @@ const ManageBookings = () => {
                 </td>
 
                 <td className='p-3'>
-                  {booking.status === 'pending' ? (
-                    <select onChange={e=> changeBookingStatus(booking._id, e.target.value)} value={booking.status} className='px-2 py-1.5 mt-1 text-gray-500 border border-borderColor rounded-md outline-none'>
+
+                  {/* PENDING → dropdown */}
+                  {booking.status === 'pending' && (
+                    <select
+                      onChange={e=> changeBookingStatus(booking._id, e.target.value)}
+                      value={booking.status}
+                      className='px-2 py-1.5 mt-1 text-gray-500 border border-borderColor rounded-md outline-none'
+                    >
                       <option value="pending">Pending</option>
+                      <option value="approved">Approved</option>
                       <option value="cancelled">Cancelled</option>
-                      <option value="confirmed">Confirmed</option>
                     </select>
-                  ): (
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${booking.status === 'confirmed' ? 'bg-green-100 text-green-500' : 'bg-red-100 text-red-500'}`}>{booking.status}</span>
                   )}
+
+                  {/* APPROVED → Start Ride button (time controlled) */}
+                  {booking.status === 'approved' && (
+                    (() => {
+                      const today = new Date()
+                      const pickup = new Date(booking.pickupDate)
+
+                      if (today >= pickup) {
+                        return (
+                          <button
+                            onClick={()=> handleStartRide(booking)}
+                            className='px-3 py-1 bg-blue-600 text-white rounded-md text-xs'
+                          >
+                            Start Ride
+                          </button>
+                        )
+                      } else {
+                        return (
+                          <span className='text-xs text-gray-400'>
+                            Starts on {booking.pickupDate.split('T')[0]}
+                          </span>
+                        )
+                      }
+                    })()
+                  )}
+
+                  {/* ACTIVE → (we implement later) */}
+                  {booking.status === 'active' && (
+                    <span className='text-xs text-blue-600 font-semibold'>Active</span>
+                  )}
+
+                  {/* COMPLETED / CANCELLED */}
+                  {['completed','cancelled'].includes(booking.status) && (
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      booking.status === 'completed'
+                        ? 'bg-green-100 text-green-500'
+                        : 'bg-red-100 text-red-500'
+                    }`}>
+                      {booking.status}
+                    </span>
+                  )}
+
                 </td>
+
 
               </tr>
             ))}
