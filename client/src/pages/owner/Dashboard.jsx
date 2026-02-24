@@ -21,7 +21,7 @@ const Dashboard = () => {
     {title: "Total Cars", value: data.totalCars, icon: assets.carIconColored},
     {title: "Total Bookings", value: data.totalBookings, icon: assets.listIconColored},
     {title: "Pending", value: data.pendingBookings, icon: assets.cautionIconColored},
-    {title: "Confirmed", value: data.completedBookings, icon: assets.listIconColored},
+    {title: "Completed", value: data.completedBookings, icon: assets.listIconColored},
   ]
 
   const fetchDashboardData = async ()=>{
