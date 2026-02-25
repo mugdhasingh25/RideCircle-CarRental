@@ -25,14 +25,15 @@ export const AppProvider = ({ children })=>{
     const fetchUser = async ()=>{
         try {
            const {data} = await axios.get('/api/user/data')
+           
            if (data.success) {
             setUser(data.user)
             setIsOwner(data.user.role === 'owner')
-           }else{
-            navigate('/')
+           } else {
+                logout()
            }
         } catch (error) {
-            toast.error(error.message)
+            logout()
         }
     }
     // Function to fetch all cars from the server
@@ -59,18 +60,16 @@ export const AppProvider = ({ children })=>{
 
     // useEffect to retrieve the token from localStorage
     useEffect(()=>{
-        const token = localStorage.getItem('token')
-        setToken(token)
-        fetchCars()
-    },[])
+        const storedToken = localStorage.getItem('token')
 
-    // useEffect to fetch user data when token is available
-    useEffect(()=>{
-        if(token){
-            axios.defaults.headers.common['Authorization'] = `${token}`
+        if(storedToken){
+            setToken(storedToken)
+            axios.defaults.headers.common['Authorization'] = storedToken
             fetchUser()
         }
-    },[token])
+
+        fetchCars()
+    },[])
 
     const value = {
         navigate, currency, axios, user, setUser,

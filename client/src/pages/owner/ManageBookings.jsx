@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 
 const ManageBookings = () => {
 
-  const { currency, axios } = useAppContext()
+  const { currency, axios, user, isOwner } = useAppContext()
 
   const [bookings, setBookings] = useState([])
 
@@ -38,8 +38,11 @@ const ManageBookings = () => {
   } 
 
   useEffect(()=>{
-    fetchOwnerBookings()
-  },[])
+    if(user && isOwner){
+        fetchOwnerBookings()
+    }
+  },[user])
+
 
   return (
     <div className='px-4 pt-10 md:px-10 w-full'>
@@ -98,8 +101,9 @@ const ManageBookings = () => {
                     (() => {
                       const today = new Date()
                       const pickup = new Date(booking.pickupDate)
+                      const returnDate = new Date(booking.returnDate)
 
-                      if (today >= pickup) {
+                      if (today >= pickup && today <= returnDate) {
                         return (
                           <button
                             onClick={()=> handleStartRide(booking)}
@@ -123,12 +127,14 @@ const ManageBookings = () => {
                     <span className='text-xs text-blue-600 font-semibold'>Active</span>
                   )}
 
-                  {/* COMPLETED / CANCELLED */}
-                  {['completed','cancelled'].includes(booking.status) && (
+                  {/* COMPLETED / CANCELLED / MISSED */}
+                  {['completed','cancelled','missed'].includes(booking.status) && (
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                       booking.status === 'completed'
                         ? 'bg-green-100 text-green-500'
-                        : 'bg-red-100 text-red-500'
+                        : booking.status === 'missed'
+                          ? 'bg-yellow-100 text-yellow-600'
+                          : 'bg-red-100 text-red-500'
                     }`}>
                       {booking.status}
                     </span>
