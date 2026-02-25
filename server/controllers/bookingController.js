@@ -70,7 +70,23 @@ export const createBooking = async (req, res)=>{
 export const getUserBookings = async (req, res)=>{
     try {
         const {_id} = req.user;
-        const bookings = await Booking.find({ user: _id }).populate("car").sort({createdAt: -1})
+
+        const bookings = await Booking.find({ user: _id })
+            .populate("car")
+            .sort({createdAt: -1})
+
+        const now = new Date()
+
+        for (let booking of bookings) {
+            if (
+                booking.status === "approved" &&
+                now > new Date(booking.returnDate)
+            ) {
+                booking.status = "missed"
+                await booking.save()
+            }
+        }
+
         res.json({success: true, bookings})
 
     } catch (error) {
@@ -86,13 +102,32 @@ export const getOwnerBookings = async (req, res)=>{
         if(req.user.role !== 'owner'){
             return res.json({ success: false, message: "Unauthorized" })
         }
-        const bookings = await Booking.find({owner: req.user._id}).populate('car user').select("-user.password").sort({createdAt: -1 })
+
+        const bookings = await Booking.find({owner: req.user._id})
+            .populate('car user')
+            .select("-user.password")
+            .sort({createdAt: -1 })
+
+        const now = new Date()
+
+        for (let booking of bookings) {
+            if (
+                booking.status === "approved" &&
+                now > new Date(booking.returnDate)
+            ) {
+                booking.status = "missed"
+                await booking.save()
+            }
+        }
+
         res.json({success: true, bookings})
+
     } catch (error) {
         console.log(error.message);
         res.json({success: false, message: error.message})
     }
 }
+
 
 // API to change booking status
 export const changeBookingStatus = async (req, res)=>{
