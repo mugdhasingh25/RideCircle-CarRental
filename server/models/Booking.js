@@ -17,25 +17,15 @@ const bookingSchema = new mongoose.Schema({
 
     price: { type: Number, required: true },
 
-    // 🚀 TrustShield Fields Multi-view Fields
-    preInspectionImages: {
-        front: String,
-        rear: String,
-        left: String,
-        right: String
-    },
-    postInspectionImages: {
-        front: String,
-        rear: String,
-        left: String,
-        right: String
-    },
+    // 🚀 TrustShield Fields (Not used yet — future ready)
+    preImage: { type: String },
+    postImage: { type: String },
 
     inspection: {
-        overall_status: String,
-        overall_damage_ratio: Number,
-        overall_severity_score: Number,
-        side_results: mongoose.Schema.Types.Mixed
+        status: { type: String },
+        severity_score: { type: Number },
+        damage_ratio: { type: Number },
+        ssim_score: { type: Number }
     }
 
 }, { timestamps: true });

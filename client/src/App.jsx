@@ -11,7 +11,6 @@ import Dashboard from './pages/owner/Dashboard'
 import AddCar from './pages/owner/AddCar'
 import ManageCars from './pages/owner/ManageCars'
 import ManageBookings from './pages/owner/ManageBookings'
-import Inspection from './pages/owner/Inspection'
 import Login from './components/Login'
 import { Toaster } from 'react-hot-toast'
 import { useAppContext } from './context/AppContext'
@@ -38,7 +37,6 @@ const App = () => {
         <Route path="add-car" element={<AddCar />}/>
         <Route path="manage-cars" element={<ManageCars />}/>
         <Route path="manage-bookings" element={<ManageBookings />}/>
-        <Route path="inspection/:bookingId" element={<Inspection />}/>
       </Route>
     </Routes>
 
