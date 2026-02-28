@@ -1,6 +1,6 @@
 import Booking from "../models/Booking.js"
 import Car from "../models/Car.js"
-import imagekit from "../configs/imagekit.js"
+import imagekit from "../configs/imageKit.js"
 
 // Function to Check Availability of Car for a given Date
 const checkAvailability = async (car, pickupDate, returnDate)=>{
