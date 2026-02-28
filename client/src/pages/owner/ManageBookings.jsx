@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react'
 import Title from '../../components/owner/Title'
 import { useAppContext } from '../../context/AppContext'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 
 const ManageBookings = () => {
 
   const { currency, axios, user, isOwner } = useAppContext()
+  const navigate = useNavigate()
 
   const [bookings, setBookings] = useState([])
 
@@ -34,8 +36,8 @@ const ManageBookings = () => {
   }
 
   const handleStartRide = (booking) => {
-  alert("Inspection will open here")
-  } 
+    navigate(`/owner/inspection/${booking._id}`)
+  }
 
   useEffect(()=>{
     if(user && isOwner){
@@ -96,7 +98,7 @@ const ManageBookings = () => {
                     </select>
                   )}
 
-                  {/* APPROVED → Start Ride button (time controlled) */}
+                  {/* APPROVED → Start Ride button */}
                   {booking.status === 'approved' && (
                     (() => {
                       const today = new Date()
@@ -122,26 +124,43 @@ const ManageBookings = () => {
                     })()
                   )}
 
-                  {/* ACTIVE → (we implement later) */}
+                  {/* ACTIVE */}
                   {booking.status === 'active' && (
-                    <span className='text-xs text-blue-600 font-semibold'>Active</span>
+                    <button
+                      onClick={()=> handleStartRide(booking)}
+                      className='px-3 py-1 bg-green-600 text-white rounded-md text-xs'
+                    >
+                      Complete Ride
+                    </button>
                   )}
 
                   {/* COMPLETED / CANCELLED / MISSED */}
                   {['completed','cancelled','missed'].includes(booking.status) && (
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      booking.status === 'completed'
-                        ? 'bg-green-100 text-green-500'
-                        : booking.status === 'missed'
-                          ? 'bg-yellow-100 text-yellow-600'
-                          : 'bg-red-100 text-red-500'
-                    }`}>
-                      {booking.status}
-                    </span>
+                    <div className="flex items-center gap-2">
+
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        booking.status === 'completed'
+                          ? 'bg-green-100 text-green-500'
+                          : booking.status === 'missed'
+                            ? 'bg-yellow-100 text-yellow-600'
+                            : 'bg-red-100 text-red-500'
+                      }`}>
+                        {booking.status}
+                      </span>
+
+                      {booking.status === "completed" && booking.inspection && (
+                        <button
+                          onClick={()=> navigate(`/owner/inspection/${booking._id}`)}
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          View Report
+                        </button>
+                      )}
+
+                    </div>
                   )}
 
                 </td>
-
 
               </tr>
             ))}
