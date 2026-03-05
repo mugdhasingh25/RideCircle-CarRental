@@ -72,8 +72,8 @@ const Inspection = () => {
 
   const handleFileChange = async (side, file) => {
     const options = {
-      maxSizeMB: 0.8,
-      maxWidthOrHeight: 1200,
+      maxSizeMB: 0.4,
+      maxWidthOrHeight: 900,
       useWebWorker: true
     }
 
