@@ -79,8 +79,8 @@ const Inspection = () => {
 
     const compressed = await imageCompression(file, options)
     
-    setImages(prev => ({ ...prev, [side]: file }))
-    setPreview(prev => ({ ...prev, [side]: URL.createObjectURL(file) }))
+    setImages(prev => ({ ...prev, [side]: compressed }))
+    setPreview(prev => ({ ...prev, [side]: URL.createObjectURL(compressed) }))
   }
 
   const runInspection = async () => {
