@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useAppContext } from "../../context/AppContext"
 import toast from "react-hot-toast"
+import imageCompression from "browser-image-compression"
 
 const Inspection = () => {
 
@@ -70,6 +71,15 @@ const Inspection = () => {
   }, [bookingId])
 
   const handleFileChange = (side, file) => {
+
+    const options = {
+      maxSizeMB: 0.8,
+      maxWidthOrHeight: 1200,
+      useWebWorker: true
+    }
+
+    const compressed = await imageCompression(file, options)
+    
     setImages(prev => ({ ...prev, [side]: file }))
     setPreview(prev => ({ ...prev, [side]: URL.createObjectURL(file) }))
   }
