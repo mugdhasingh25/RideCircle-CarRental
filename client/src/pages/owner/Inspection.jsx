@@ -70,8 +70,7 @@ const Inspection = () => {
     fetchBooking()
   }, [bookingId])
 
-  const handleFileChange = (side, file) => {
-
+  const handleFileChange = async (side, file) => {
     const options = {
       maxSizeMB: 0.8,
       maxWidthOrHeight: 1200,
