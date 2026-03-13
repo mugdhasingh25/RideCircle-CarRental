@@ -6,7 +6,9 @@ import {
   getOwnerBookings,
   getUserBookings,
   startRide,
-  endRide
+  endRide,
+  acceptPickup,
+  submitReturn
 } from "../controllers/bookingController.js";
 import { protect } from "../middleware/auth.js";
 import upload from "../middleware/multer.js";   // ✅ added
@@ -43,6 +45,22 @@ bookingRouter.post(
     { name: "right", maxCount: 1 }
   ]),
   endRide
+)
+
+bookingRouter.post('/accept-pickup', protect, acceptPickup)
+
+bookingRouter.post('/confirm-return', protect, endRide)
+
+bookingRouter.post(
+  '/submit-return',
+  protect,
+  upload.fields([
+    { name: "front", maxCount: 1 },
+    { name: "rear", maxCount: 1 },
+    { name: "left", maxCount: 1 },
+    { name: "right", maxCount: 1 }
+  ]),
+  submitReturn
 )
 
 export default bookingRouter;

@@ -136,7 +136,6 @@ export const startRide = async (req, res)=>{
             return res.json({ success: false, message: "Unauthorized"})
         }
 
-        // Upload images to ImageKit
         const uploadToImageKit = async (file) => {
             const result = await imagekit.upload({
                 file: file.buffer,
@@ -177,6 +176,58 @@ export const endRide = async (req, res)=>{
             return res.json({ success: false, message: "Unauthorized"})
         }
 
+        // If renter already submitted return photos, use those directly
+        if(booking.status === "returning" && booking.postInspectionImages?.front) {
+            console.log("Calling TrustShield with renter's return photos...")
+
+            const response = await fetch(
+                "https://ridecircle-trustshield.onrender.com/analyze",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        before_front: booking.preInspectionImages.front,
+                        before_rear: booking.preInspectionImages.rear,
+                        before_left: booking.preInspectionImages.left,
+                        before_right: booking.preInspectionImages.right,
+                        after_front: booking.postInspectionImages.front,
+                        after_rear: booking.postInspectionImages.rear,
+                        after_left: booking.postInspectionImages.left,
+                        after_right: booking.postInspectionImages.right
+                    })
+                }
+            )
+
+            const text = await response.text()
+            console.log("RAW RESPONSE:", text)
+
+            let result
+            try {
+                result = JSON.parse(text)
+            } catch (err) {
+                return res.json({ success: false, message: "TrustShield returned invalid response" })
+            }
+
+            if(result.success){
+                booking.inspection = {
+                    overall_status: result.overall_status,
+                    overall_damage_ratio: result.overall_damage_ratio,
+                    overall_severity_score: result.overall_severity_score,
+                    side_results: result.sides
+                }
+            }
+
+            booking.status = "completed"
+            await booking.save()
+
+            return res.json({
+                success: true,
+                message: "Ride Completed",
+                inspection: result
+            })
+        }
+
+        // Otherwise owner is uploading post images manually
         const uploadToImageKit = async (file) => {
             const result = await imagekit.upload({
                 file: file.buffer,
@@ -194,7 +245,6 @@ export const endRide = async (req, res)=>{
 
         booking.postInspectionImages = postImages
 
-        // Call TrustShield
         console.log("Calling TrustShield...")
 
         const response = await fetch(
@@ -238,7 +288,6 @@ export const endRide = async (req, res)=>{
         }
 
         booking.status = "completed"
-
         await booking.save()
 
         res.json({
@@ -272,5 +321,75 @@ export const changeBookingStatus = async (req, res)=>{
     } catch (error) {
         console.log(error.message);
         res.json({success: false, message: error.message})
+    }
+}
+
+// ACCEPT PICKUP (Renter confirms they accept the car condition)
+export const acceptPickup = async (req, res) => {
+    try {
+        const { _id } = req.user
+        const { bookingId } = req.body
+
+        const booking = await Booking.findById(bookingId)
+
+        if (!booking || booking.user.toString() !== _id.toString()) {
+            return res.json({ success: false, message: "Unauthorized" })
+        }
+
+        if (!booking.preInspectionImages?.front) {
+            return res.json({ success: false, message: "Owner has not uploaded before photos yet" })
+        }
+
+        booking.status = "active"
+        await booking.save()
+
+        res.json({ success: true, message: "Pickup accepted, ride is now active" })
+
+    } catch (error) {
+        console.log(error.message)
+        res.json({ success: false, message: error.message })
+    }
+}
+
+// SUBMIT RETURN PHOTOS (Renter uploads after photos)
+export const submitReturn = async (req, res) => {
+    try {
+        const { _id } = req.user
+        const { bookingId } = req.body
+
+        const booking = await Booking.findById(bookingId)
+
+        if (!booking || booking.user.toString() !== _id.toString()) {
+            return res.json({ success: false, message: "Unauthorized" })
+        }
+
+        if (booking.status !== "active") {
+            return res.json({ success: false, message: "Ride is not active" })
+        }
+
+        const uploadToImageKit = async (file) => {
+            const result = await imagekit.upload({
+                file: file.buffer,
+                fileName: `${Date.now()}-${file.originalname}`
+            })
+            return result.url
+        }
+
+        const postImages = {
+            front: await uploadToImageKit(req.files.front[0]),
+            rear: await uploadToImageKit(req.files.rear[0]),
+            left: await uploadToImageKit(req.files.left[0]),
+            right: await uploadToImageKit(req.files.right[0])
+        }
+
+        booking.postInspectionImages = postImages
+        booking.status = "returning"
+        await booking.save()
+
+        res.json({ success: true, message: "Return photos submitted. Waiting for owner to confirm." })
+
+    } catch (error) {
+        console.log(error.message)
+        res.json({ success: false, message: error.message })
     }
 }

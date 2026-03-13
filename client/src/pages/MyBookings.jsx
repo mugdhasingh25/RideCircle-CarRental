@@ -4,10 +4,12 @@ import Title from '../components/Title'
 import { useAppContext } from '../context/AppContext'
 import toast from 'react-hot-toast'
 import { motion } from 'motion/react'
+import { useNavigate } from 'react-router-dom'
 
 const MyBookings = () => {
 
   const { axios, user, currency } = useAppContext()
+  const navigate = useNavigate()
 
   const [bookings, setBookings] = useState([])
 
@@ -17,6 +19,20 @@ const MyBookings = () => {
       if (data.success){
         setBookings(data.bookings)
       }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
+
+  const handleAcceptPickup = async (bookingId) => {
+    try {
+      const { data } = await axios.post('/api/bookings/accept-pickup', { bookingId })
+      if (data.success) {
+        toast.success('Ride accepted! Have a safe trip.')
+        fetchMyBookings()
+      } else {
         toast.error(data.message)
       }
     } catch (error) {
@@ -41,7 +57,14 @@ const MyBookings = () => {
        align="left"/>
 
        <div>
-        {bookings.map((booking, index)=>(
+        {bookings.map((booking, index)=>{
+
+          const today = new Date()
+          const pickup = new Date(booking.pickupDate)
+          const returnDate = new Date(booking.returnDate)
+          const withinRentalPeriod = today >= pickup && today <= returnDate
+
+          return (
           <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -72,6 +95,8 @@ const MyBookings = () => {
                     ? 'bg-red-400/15 text-red-600'
                     : booking.status === 'active'
                     ? 'bg-blue-400/15 text-blue-600'
+                    : booking.status === 'returning'
+                    ? 'bg-orange-400/15 text-orange-600'
                     : booking.status === 'completed'
                     ? 'bg-purple-400/15 text-purple-600'
                     : 'bg-gray-400/15 text-gray-600'
@@ -105,11 +130,54 @@ const MyBookings = () => {
                 <h1 className='text-2xl font-semibold text-primary'>{currency}{booking.price}</h1>
                 <p>Booked on {booking.createdAt.split('T')[0]}</p>
               </div>
+
+              <div className='flex flex-col gap-2'>
+
+                {booking.status === 'approved' && booking.preInspectionImages?.front && withinRentalPeriod && (
+                  <button
+                    onClick={() => handleAcceptPickup(booking._id)}
+                    className='w-full px-4 py-2 bg-green-600 text-white rounded-md text-xs font-medium hover:bg-green-700 transition-colors'
+                  >
+                    Accept & Take Keys
+                  </button>
+                )}
+
+                {booking.status === 'approved' && !booking.preInspectionImages?.front && withinRentalPeriod && (
+                  <p className='text-xs text-yellow-600 bg-yellow-50 px-3 py-2 rounded-md text-right'>
+                    Waiting for owner to document the car.
+                  </p>
+                )}
+
+                {booking.status === 'active' && (
+                  <button
+                    onClick={() => navigate(`/inspection/${booking._id}`)}
+                    className='w-full px-4 py-2 bg-blue-600 text-white rounded-md text-xs font-medium hover:bg-blue-700 transition-colors'
+                  >
+                    Return Car
+                  </button>
+                )}
+
+                {booking.status === 'returning' && (
+                  <p className='text-xs text-orange-600 bg-orange-50 px-3 py-2 rounded-md text-right'>
+                    Return submitted. Waiting for owner to confirm.
+                  </p>
+                )}
+
+                {booking.status === 'completed' && booking.inspection && (
+                  <button
+                    onClick={() => navigate(`/inspection/${booking._id}`)}
+                    className='w-full px-4 py-2 bg-purple-600 text-white rounded-md text-xs font-medium hover:bg-purple-700 transition-colors'
+                  >
+                    View Report
+                  </button>
+                )}
+
+              </div>
            </div>
 
-
           </motion.div>
-        ))}
+          )
+        })}
        </div>
       
     </motion.div>
