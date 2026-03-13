@@ -36,7 +36,15 @@ const ManageBookings = () => {
   }
 
   const handleStartRide = (booking) => {
-    navigate(`/owner/inspection/${booking._id}`)
+    if(booking.status === 'returning') {
+        handleConfirmReturn(booking._id)
+    } else {
+        navigate(`/owner/inspection/${booking._id}`)
+    }
+  }
+
+  const handleConfirmReturn = (bookingId) => {
+    navigate(`/owner/inspection/${bookingId}`)
   }
 
   useEffect(()=>{
@@ -131,6 +139,16 @@ const ManageBookings = () => {
                       className='px-3 py-1 bg-green-600 text-white rounded-md text-xs'
                     >
                       Complete Ride
+                    </button>
+                  )}
+
+                  {/* RETURNING - renter has submitted photos, owner confirms */}
+                  {booking.status === 'returning' && (
+                    <button
+                      onClick={()=> handleStartRide(booking)}
+                      className='px-3 py-1 bg-orange-500 text-white rounded-md text-xs'
+                    >
+                      Confirm Return
                     </button>
                   )}
 

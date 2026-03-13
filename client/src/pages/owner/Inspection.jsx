@@ -59,7 +59,7 @@ const Inspection = () => {
                 sides: current.inspection.side_results
               })
             } else {
-              setMode(current.status === "active" ? "post" : "pre")
+              setMode(current.status === "active" ? "post" : current.status === "returning" ? "confirm" : "pre")
             }
           }
         }
@@ -69,6 +69,13 @@ const Inspection = () => {
     }
     fetchBooking()
   }, [bookingId])
+
+  // Auto-trigger TrustShield when mode is confirm
+  useEffect(() => {
+    if (mode === "confirm" && booking) {
+      runInspection()
+    }
+  }, [mode, booking])
 
   const handleFileChange = async (side, file) => {
     const options = {
@@ -85,7 +92,7 @@ const Inspection = () => {
 
   const runInspection = async () => {
 
-    if (!images.front || !images.rear || !images.left || !images.right) {
+    if (mode !== "confirm" && (!images.front || !images.rear || !images.left || !images.right)) {
       return toast.error("Upload all 4 images")
     }
 
@@ -93,13 +100,27 @@ const Inspection = () => {
 
       setLoading(true)
 
+      if (mode === "confirm") {
+        const { data } = await axios.post(
+          "/api/bookings/confirm-return",
+          { bookingId }
+        )
+        if (data.success) {
+          setResult(data.inspection)
+        } else {
+          toast.error(data.message)
+        }
+        setLoading(false)
+        return
+      }
+
       const formData = new FormData()
       formData.append("bookingId", bookingId)
       formData.append("front", images.front)
       formData.append("rear", images.rear)
       formData.append("left", images.left)
       formData.append("right", images.right)
-
+      
       if (mode === "pre") {
 
         const { data } = await axios.post(
@@ -141,7 +162,7 @@ const Inspection = () => {
     <div className="p-10 max-w-4xl mx-auto">
 
       {/* FULL AI OVERLAY (ONLY POST MODE) */}
-      {loading && mode === "post" && (
+      {loading && (mode === "post" || mode === "confirm") && (
         <div className="fixed inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-center z-50 text-white">
 
           <div className="relative mb-10">
