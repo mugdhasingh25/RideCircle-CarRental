@@ -106,7 +106,7 @@ const ManageBookings = () => {
                     </select>
                   )}
 
-                  {/* APPROVED → Start Ride button */}
+                  {/* APPROVED → Start Ride or Waiting */}
                   {booking.status === 'approved' && (
                     (() => {
                       const today = new Date()
@@ -114,6 +114,13 @@ const ManageBookings = () => {
                       const returnDate = new Date(booking.returnDate)
 
                       if (today >= pickup && today <= returnDate) {
+                        if (booking.preInspectionImages?.front) {
+                          return (
+                            <span className='text-xs text-green-600 bg-green-50 px-2 py-1 rounded-md'>
+                              Waiting for renter to accept
+                            </span>
+                          )
+                        }
                         return (
                           <button
                             onClick={()=> handleStartRide(booking)}
@@ -134,12 +141,9 @@ const ManageBookings = () => {
 
                   {/* ACTIVE */}
                   {booking.status === 'active' && (
-                    <button
-                      onClick={()=> handleStartRide(booking)}
-                      className='px-3 py-1 bg-green-600 text-white rounded-md text-xs'
-                    >
-                      Complete Ride
-                    </button>
+                    <span className='text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-md'>
+                      Ride in Progress
+                    </span>
                   )}
 
                   {/* RETURNING - renter has submitted photos, owner confirms */}
