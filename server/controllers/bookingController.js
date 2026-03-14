@@ -152,7 +152,6 @@ export const startRide = async (req, res)=>{
         }
 
         booking.preInspectionImages = preImages
-        booking.status = "active"
 
         await booking.save()
 
