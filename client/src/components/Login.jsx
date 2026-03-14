@@ -129,6 +129,21 @@ const Login = () => {
                 {state === "register" ? "Create Account" : "Login"}
             </button>
 
+            <div className="w-full flex items-center gap-2">
+                <div className="flex-1 h-px bg-gray-200"></div>
+                <p className="text-gray-400 text-xs">or</p>
+                <div className="flex-1 h-px bg-gray-200"></div>
+            </div>
+
+            <button
+                type="button"
+                onClick={() => window.location.href = `${import.meta.env.VITE_SERVER_URL}/api/auth/google`}
+                className="flex items-center justify-center gap-3 w-full border border-gray-300 rounded-md py-2 hover:bg-gray-50 transition-all cursor-pointer"
+            >
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+                <span className="text-gray-600 font-medium text-sm">Continue with Google</span>
+            </button>
+
         </form>
     </div>
   )
