@@ -62,6 +62,12 @@ export const AppProvider = ({ children })=>{
     useEffect(()=>{
         const storedToken = localStorage.getItem('token')
 
+        // Don't run fetchUser on google-auth page
+        if(window.location.pathname === '/google-auth'){
+            fetchCars()
+            return
+        }
+
         if(storedToken){
             setToken(storedToken)
             axios.defaults.headers.common['Authorization'] = storedToken
