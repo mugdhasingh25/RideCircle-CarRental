@@ -8,6 +8,7 @@ import userRouter from "./routes/userRoutes.js";
 import ownerRouter from "./routes/ownerRoutes.js";
 import bookingRouter from "./routes/bookingRoutes.js";
 import authRouter from "./routes/authRoutes.js";
+import paymentRouter from "./routes/paymentRoutes.js"
 
 // Initialize Express App
 const app = express()
@@ -42,6 +43,7 @@ app.use('/api/user', userRouter)
 app.use('/api/owner', ownerRouter)
 app.use('/api/bookings', bookingRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/payment', paymentRouter)
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, ()=> console.log(`Server running on port ${PORT}`))

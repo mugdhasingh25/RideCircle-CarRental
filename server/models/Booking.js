@@ -31,12 +31,17 @@ const bookingSchema = new mongoose.Schema({
         right: String
     },
 
+    paymentId: { type: String, default: null },
+    paymentStatus: { type: String, enum: ["pending", "paid"], default: "pending" },
+    protectionPlan: { type: String, enum: ["none", "basic", "premium"], default: "none" },
+
     inspection: {
         overall_status: String,
         overall_damage_ratio: Number,
         overall_severity_score: Number,
         side_results: mongoose.Schema.Types.Mixed
     }
+
 
 }, { timestamps: true });
 

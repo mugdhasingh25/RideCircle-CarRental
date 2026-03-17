@@ -14,6 +14,7 @@ const AddCar = () => {
     model: '',
     year: 0,
     pricePerDay: 0,
+    securityDeposit: 0,
     category: '',
     transmission: '',
     fuel_type: '',
@@ -43,6 +44,7 @@ const AddCar = () => {
           model: '',
           year: 0,
           pricePerDay: 0,
+          securityDeposit: 0,
           category: '',
           transmission: '',
           fuel_type: '',
@@ -86,7 +88,6 @@ const AddCar = () => {
             <label>Model</label>
             <input type="text" placeholder="e.g. X5, E-Class, M4..." required className='px-3 py-2 mt-1 border border-borderColor rounded-md outline-none' value={car.model} onChange={e=> setCar({...car, model: e.target.value})}/>
           </div>
-          
         </div>
 
         {/* Car Year, Price, Category */}
@@ -110,7 +111,7 @@ const AddCar = () => {
           </div>
         </div>
 
-         {/* Car Transmission, Fuel Type, Seating Capacity */}
+        {/* Car Transmission, Fuel Type, Seating Capacity */}
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6'>
           <div className='flex flex-col w-full'>
             <label>Transmission</label>
@@ -138,28 +139,44 @@ const AddCar = () => {
           </div>
         </div>
 
-         {/* Car Location */}
-         <div className='flex flex-col w-full'>
-            <label>Location</label>
-            <select onChange={e=> setCar({...car, location: e.target.value})} value={car.location} className='px-3 py-2 mt-1 border border-borderColor rounded-md outline-none'>
-              <option value="">Select a location</option>
-              <option value="Chennai">Chennai</option>
-              <option value="Vellore">Vellore</option>
-              <option value="Bangalore">Bangalore</option>
-              <option value="Mumbai">Mumbai</option>
-            </select>
-         </div>
-        {/* Car Description */}
-         <div className='flex flex-col w-full'>
-            <label>Description</label>
-            <textarea rows={5} placeholder="e.g. A luxurious SUV with a spacious interior and a powerful engine." required className='px-3 py-2 mt-1 border border-borderColor rounded-md outline-none' value={car.description} onChange={e=> setCar({...car, description: e.target.value})}></textarea>
+        {/* Security Deposit */}
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <div className='flex flex-col w-full'>
+            <label>Security Deposit ({currency})</label>
+            <input
+              type="number"
+              placeholder="e.g. 2000"
+              required
+              className='px-3 py-2 mt-1 border border-borderColor rounded-md outline-none'
+              value={car.securityDeposit}
+              onChange={e=> setCar({...car, securityDeposit: e.target.value})}
+            />
+            <p className='text-xs text-gray-400 mt-1'>Refundable deposit collected from renter. Released after approved inspection.</p>
           </div>
+        </div>
+
+        {/* Car Location */}
+        <div className='flex flex-col w-full'>
+          <label>Location</label>
+          <select onChange={e=> setCar({...car, location: e.target.value})} value={car.location} className='px-3 py-2 mt-1 border border-borderColor rounded-md outline-none'>
+            <option value="">Select a location</option>
+            <option value="Chennai">Chennai</option>
+            <option value="Vellore">Vellore</option>
+            <option value="Bangalore">Bangalore</option>
+            <option value="Mumbai">Mumbai</option>
+          </select>
+        </div>
+
+        {/* Car Description */}
+        <div className='flex flex-col w-full'>
+          <label>Description</label>
+          <textarea rows={5} placeholder="e.g. A luxurious SUV with a spacious interior and a powerful engine." required className='px-3 py-2 mt-1 border border-borderColor rounded-md outline-none' value={car.description} onChange={e=> setCar({...car, description: e.target.value})}></textarea>
+        </div>
 
         <button className='flex items-center gap-2 px-4 py-2.5 mt-4 bg-primary text-white rounded-md font-medium w-max cursor-pointer'>
           <img src={assets.tick_icon} alt="" />
           {isLoading ? 'Listing...' : 'List Your Car'}
         </button>
-
 
       </form>
 
