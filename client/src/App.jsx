@@ -13,6 +13,7 @@ import ManageCars from './pages/owner/ManageCars'
 import ManageBookings from './pages/owner/ManageBookings'
 import Inspection from './pages/owner/Inspection'
 import UserInspection from './pages/UserInspection'
+import MyDashboard from './pages/MyDashboard'
 import GoogleAuthSuccess from './pages/GoogleAuthSuccess'
 import Login from './components/Login'
 import { Toaster } from 'react-hot-toast'
@@ -36,6 +37,7 @@ const App = () => {
       <Route path='/cars' element={<Cars/>}/>
       <Route path='/my-bookings' element={<MyBookings/>}/>
       <Route path='/inspection/:bookingId' element={<UserInspection/>}/>
+      <Route path='/my-dashboard' element={<MyDashboard/>}/>
       <Route path='/google-auth' element={<GoogleAuthSuccess/>}/>
       <Route path='/owner' element={<Layout />}>
         <Route index element={<Dashboard />}/>
