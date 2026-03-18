@@ -2,6 +2,7 @@ import User from "../models/User.js"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import Car from "../models/Car.js";
+import Booking from "../models/Booking.js";
 
 
 // Generate JWT Token
@@ -74,5 +75,47 @@ export const getCars = async (req, res) =>{
     } catch (error) {
         console.log(error.message);
         res.json({success: false, message: error.message})
+    }
+}
+
+// Get Renter Stats for Dashboard
+export const getRenterStats = async (req, res) => {
+    try {
+        const { _id } = req.user
+
+        const user = await User.findById(_id).select("-password")
+
+        const bookings = await Booking.find({ user: _id }).populate("car")
+
+        const totalRides = bookings.filter(b => b.status === "completed").length
+        const approvedRides = bookings.filter(b =>
+            b.status === "completed" && b.inspection?.overall_status === "APPROVED"
+        ).length
+        const damageRides = bookings.filter(b =>
+            b.status === "completed" && b.inspection?.overall_status !== "APPROVED" && b.inspection
+        ).length
+        const activeBooking = bookings.find(b =>
+            ["pending", "approved", "active", "returning"].includes(b.status)
+        )
+        const pendingBookings = bookings.filter(b => b.status === "pending").length
+
+        res.json({
+            success: true,
+            stats: {
+                renterScore: user.renterScore || 100,
+                totalRides,
+                approvedRides,
+                damageRides,
+                pendingBookings,
+                activeBooking: activeBooking || null,
+                name: user.name,
+                image: user.image,
+                email: user.email
+            }
+        })
+
+    } catch (error) {
+        console.log(error.message)
+        res.json({ success: false, message: error.message })
     }
 }

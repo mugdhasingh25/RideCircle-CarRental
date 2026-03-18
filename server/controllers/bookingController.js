@@ -1,6 +1,24 @@
 import Booking from "../models/Booking.js"
 import Car from "../models/Car.js"
+import User from "../models/User.js"
 import imagekit from "../configs/imageKit.js"
+
+// Helper to update renter score based on inspection result
+const updateRenterScore = async (userId, overallStatus) => {
+    try {
+        let scoreChange = 0
+        if (overallStatus === "APPROVED") scoreChange = 10
+        else if (overallStatus === "MINOR DAMAGE") scoreChange = -5
+        else if (overallStatus === "MODERATE DAMAGE") scoreChange = -15
+        else if (overallStatus === "MAJOR DAMAGE") scoreChange = -30
+
+        await User.findByIdAndUpdate(userId, {
+            $inc: { renterScore: scoreChange }
+        })
+    } catch (error) {
+        console.log("Score update error:", error.message)
+    }
+}
 
 // Function to Check Availability of Car for a given Date
 const checkAvailability = async (car, pickupDate, returnDate)=>{
@@ -219,6 +237,9 @@ export const endRide = async (req, res)=>{
             booking.status = "completed"
             await booking.save()
 
+            // Update RenterScore
+            await updateRenterScore(booking.user, result.overall_status)
+
             return res.json({
                 success: true,
                 message: "Ride Completed",
@@ -288,6 +309,9 @@ export const endRide = async (req, res)=>{
 
         booking.status = "completed"
         await booking.save()
+
+        // Update RenterScore
+        await updateRenterScore(booking.user, result.overall_status)
 
         res.json({
             success: true,
