@@ -416,3 +416,30 @@ export const submitReturn = async (req, res) => {
         res.json({ success: false, message: error.message })
     }
 }
+
+// CANCEL UNPAID BOOKING (renter cancelled payment)
+export const cancelUnpaid = async (req, res) => {
+    try {
+        const { _id } = req.user
+        const { bookingId } = req.body
+
+        const booking = await Booking.findById(bookingId)
+
+        if (!booking || booking.user.toString() !== _id.toString()) {
+            return res.json({ success: false, message: "Unauthorized" })
+        }
+
+        if (booking.paymentStatus === "paid") {
+            return res.json({ success: false, message: "Cannot cancel a paid booking here" })
+        }
+
+        booking.status = "cancelled"
+        await booking.save()
+
+        res.json({ success: true, message: "Booking cancelled" })
+
+    } catch (error) {
+        console.log(error.message)
+        res.json({ success: false, message: error.message })
+    }
+}
