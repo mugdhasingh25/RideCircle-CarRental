@@ -8,7 +8,8 @@ import {
   startRide,
   endRide,
   acceptPickup,
-  submitReturn
+  submitReturn,
+  cancelUnpaid
 } from "../controllers/bookingController.js";
 import { protect } from "../middleware/auth.js";
 import upload from "../middleware/multer.js";   // ✅ added
@@ -47,6 +48,7 @@ bookingRouter.post(
   endRide
 )
 
+bookingRouter.post('/cancel-unpaid', protect, cancelUnpaid)
 bookingRouter.post('/accept-pickup', protect, acceptPickup)
 
 bookingRouter.post('/confirm-return', protect, endRide)
